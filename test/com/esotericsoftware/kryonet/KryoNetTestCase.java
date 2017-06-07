@@ -80,7 +80,7 @@ abstract public class KryoNetTestCase extends TestCase {
 	}
 
 	public void waitForThreads (int stopAfterMillis) {
-		if (stopAfterMillis > 10000) throw new IllegalArgumentException("stopAfterMillis must be < 10000");
+		if (stopAfterMillis > 1000000) throw new IllegalArgumentException("stopAfterMillis must be < 1000000");
 		stopEndPoints(stopAfterMillis);
 		waitForThreads();
 	}
@@ -93,7 +93,7 @@ abstract public class KryoNetTestCase extends TestCase {
 				fail = true;
 			}
 		};
-		timer.schedule(failTask, 11000);
+		timer.schedule(failTask, 100000);
 		while (true) {
 			for (Iterator iter = threads.iterator(); iter.hasNext();) {
 				Thread thread = (Thread)iter.next();
