@@ -30,10 +30,10 @@ public class MultipleThreadTest extends KryoNetTestCase {
 	public void testMultipleThreads () throws IOException {
 		receivedServer = 0;
 
-		final int messageCount = 10;
-		final int threads = 5;
+		final int messageCount = 3;
+		final int threads = 1;
 		final int sleepMillis = 50;
-		final int clients = 3;
+		final int clients = 10;
 
 		final Server server = new Server(16384, 8192);
 		server.getKryo().register(String[].class);
@@ -42,6 +42,7 @@ public class MultipleThreadTest extends KryoNetTestCase {
 		server.addListener(new Listener() {
 			public void received (Connection connection, Object object) {
 				receivedServer++;
+				System.out.println("Server received: " + (String)object);
 				if (receivedServer == messageCount * clients) stopEndPoints();
 			}
 		});
@@ -57,10 +58,11 @@ public class MultipleThreadTest extends KryoNetTestCase {
 
 				public void received (Connection connection, Object object) {
 					if (object instanceof String) {
+						System.out.println("Client received: " + (String)object);
 						received++;
 						if (received == messageCount * threads) {
 							for (int i = 0; i < messageCount; i++) {
-								connection.sendTCP("message" + i);
+								connection.sendTCP("[C->S]: Conn ID=" + connection.getID() + " client thread_id=" + Thread.currentThread().getId() + " message" + i);
 								try {
 									Thread.sleep(50);
 								} catch (InterruptedException ignored) {
@@ -79,7 +81,7 @@ public class MultipleThreadTest extends KryoNetTestCase {
 					Connection[] connections = server.getConnections();
 					for (int i = 0; i < messageCount; i++) {
 						for (int ii = 0, n = connections.length; ii < n; ii++)
-							connections[ii].sendTCP("message" + i);
+							connections[ii].sendTCP("[S->C]: Conn ID=" + connections[ii].getID() + " server thread_id=" + this.getId() + " message" + i);
 						try {
 							Thread.sleep(sleepMillis);
 						} catch (InterruptedException ignored) {
